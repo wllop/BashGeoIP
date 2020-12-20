@@ -87,7 +87,7 @@ fi
 
 IFS_old=$IFS
 IFS=$'\n'
-for pais in $(cat $fich_pais|tr [:upper:] [:lower:]); do
+for pais in $(cat $fich_pais|tr -d \"|tr [:upper:] [:lower:]); do
  for linea in $(egrep -o "\b[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b" $1|sort -n|uniq); do
   if [ $ignora_privadas -eq 0 ]; then
    resp=$(privada $linea)
@@ -98,7 +98,7 @@ for pais in $(cat $fich_pais|tr [:upper:] [:lower:]); do
     sleep 1
    done
    if [ "$res" != "$pais" ] && [ "$pais" != "test" ]; then
-     iptables -L INPUT -n|grep $linea >/dev/null ||  iptables -A INPUT -s $linea -j DROP 2>/dev/null
+     iptables -L INPUT -n|grep $linea >/dev/null ||  iptables -w 5 -A INPUT -s $linea -j DROP 2>/dev/null
    elif [ "$pais" == "test" ];then
     echo IP:$linea - Country:$res
    fi
