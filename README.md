@@ -27,6 +27,11 @@ geo_ip.sh [-i] [-b listado_paises_permitidos] <fichero>
 * geo_ip.sh ip.txt  --> Muestra una relación entre las direcciones IP existentes en el fichero "ip.txt" y el país al que pertenecen.
 * geo_ip.sh -i -b paises.txt ip.txt -> Crea reglas de filtrado IPTABLES,  para impedir el acceso a las IPs existentes en el fichero 'ip.txt', que NO pertenezcan a los paises indicados en el archivo 'paises.txt'. Además, con la opción -i, hacemos que omita las IP's privadas.
 
+# PRÓXIMAS MEJORAS:
+- Lista blanca de IPs
+- Lista blanca automática de Bots de posicionamiento con opción -s (SEO)
+
+
 Cualquier comentario, error o mejora enviadlo a wllop@esat.es. 
 Muchas gracias!!
 @wllop
