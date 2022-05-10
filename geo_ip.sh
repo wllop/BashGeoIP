@@ -1,4 +1,49 @@
 #!/bin/bash
+#set -x
+
+function check_ip { #Devuelve 0 si la IP es válida y 1 si NO es válida
+IFS_TMP=$IFS
+IFS=.
+ip=($1)
+if [ "${ip[0]:=0}" -ge "1" -a "${ip[0]:=0}" -lt 223 ]; then
+ if [ "${ip[1]:=300}" -ge "0" -a "${ip[1]:=300}" -le 255 ]; then
+   if [ "${ip[2]:=300}" -ge "0" -a "${ip[2]:=300}" -le 255 ]; then
+     if [ "${ip[3]:=300}" -ge "0" -a "${ip[3]:=300}" -le 255 ]; then
+       if ! [ "${ip[1]:=0}" -eq "0" -a "${ip[2]:=0}" -eq 0 -a "${ip[3]:=0}" -eq 0 ]; then
+         if [ "${ip[1]:=0}" -ne "255" -a "${ip[2]:=0}" -ne 255 -a "${ip[3]:=0}" -ne 255 ]; then
+           echo 0
+           exit
+         else
+           echo 1
+           exit
+         fi
+        else
+           echo 1
+           exit
+        fi
+      else
+           echo 1
+           exit
+         
+      fi
+    else
+           echo 1
+           exit
+         
+    fi
+  else
+           echo 1
+           exit
+         
+  fi
+else
+           echo 1
+           exit
+         
+fi
+IFS=$IFS_TMP
+}
+
 function privada { #Devuelve 1 si la IP es privada
 IFS_TMP=$IFS
 IFS=.
@@ -12,15 +57,21 @@ elif [ "${ip[0]}" == "169" -a "${ip[1]}" == "254" ]; then
 elif [ "${ip[0]}" == "192" ] && "${ip[1]}" == "168" ] && [ "${ip[2]:=0}" -ge 0 -a "${ip[1]:=0}" -le 255 ]; then
   echo 1
 fi
+IFS=$IFS_TMP
 }
 
+function geoip { ##Dada una ip indica su país de origen
+ res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:]) 
+ echo $res   
+}
 function help  {
- echo ""
+ echo "$1"
  echo "GEOIP buscará IPs en el fichero pasado como parámetro y las Geolocalizarán gracias a ip-api.com"
  echo "Sintaxis:"
- echo "geo_ip.sh [-i] [-b <listado_paises>] <fichero>"
+ echo "geo_ip.sh [-i] [-b <listado_paises>] [-ip X.X.X.X] <fichero> "
  echo "[OPCIONAL] Con la opción -i --> Ignoramos la opción de comprobación de IP's PRIVADAS."
  echo "[OPCIONAL] Con la opción -b <listado_países> --> Añade una regla IPTABLES a las IP's que pertenezcan al listado de países indicado en el fichero <listado_países>"
+ echo "[OPCIONAL] Con la opción -ip --> Mostramos el país de la IP pasada como parámetro. NO debe usarse junto con -i o -b"
  echo "Ejemplo:"
  echo "geo_ip /var/log/auth.log"
  echo "geo_ip -b /home/wllop/listado.txt /var/log/auth.log"
@@ -43,12 +94,25 @@ if [ "$#" == "0" ]; then
   help
 fi
 ignora_privadas=0
-#Compruebo si hay que implementar las opciones de firewall!
 if [ "$1" == "-i" ]; then
    ignora_privadas=1
    shift
 fi
 
+if [ "$1" == "-ip" ]; then ## Nos pasan IP
+   resp=$(check_ip $2)
+   if [ "$resp" == "0" ];then #OK
+    resp=$(privada $2)
+    if [ "$resp" != "1" ];then #OK
+      resp=$(geoip $2)
+      echo "País: $resp"
+      exit
+    fi
+   fi
+      help "Compruebe dirección IP"   
+fi
+
+#Compruebo si hay que implementar las opciones de firewall!
 if [ "$1" == "-b" ];then
   if [ $(id -u) -ne 0 ];then
      echo "Debe ser administrador para poder utilizar esta opción."
