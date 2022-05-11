@@ -8,7 +8,7 @@ Permite además crear reglas en IPTABLES para "banear"  IPs que no pertenezcan a
 - El nombre de los países soportado, se basa en las características del servicio ip-api.com. Aunque no he encontrado en la documentación un listado de países, en un alto porcentaje hace uso del standard ISO3166, por lo que he subido dicho fichero, a modo ejemplo, en el repositorio. Dicho fichero se llama paises.txt.
  
 # USO:
-geo_ip.sh [-i] [-b listado_paises_permitidos] <fichero>
+geo_ip.sh [-i] [-b listado_paises_permitidos] <fichero> -ip X.X.X.X
 
 # OPCIONES:
 -h --> Muestra ayuda del comando.
