@@ -177,13 +177,12 @@ if [ "$ip" != "0" ]; then ## Nos pasan IP
       exit
     fi
 fi
-trap 'rm -rf "$lockdir" 2>/dev/null;rm -rf "$lockiptabledir" 2>/dev/null;rm -fr /tmp/fw$(echo "${fichero}"|tr -d /)_ip 2 >/dev/null' 0
-
 ##Exclusión mutua para evitar problemas de concurrencia! http://mywiki.wooledge.org/BashFAQ/045
 lockdir=/tmp/$(echo ${fichero}|tr -d /)_tmp.lock
 if ! mkdir "$lockdir" 2>/dev/null; then
   exit 0
 fi
+trap 'rm -rf "$lockdir" 2>/dev/null;rm -rf "$lockiptabledir" 2>/dev/null;rm -fr /tmp/fw$(echo "${fichero}"|tr -d /)_ip 2 >/dev/null' 0
 
 if [ "$fiperm" != "0" ];then ##Tengo fichero de exclusión de IP
   grep -oP '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' $fichero|grep -v -E "0.0.0.0|127.0.0.1" |grep -v -f $fiperm|sort -u >/tmp/fw$(echo ${fichero}|tr -d /)_ip
