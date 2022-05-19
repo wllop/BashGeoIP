@@ -177,6 +177,12 @@ if [ "$ip" != "0" ]; then ## Nos pasan IP
       exit
     fi
 fi
+##Exclusión mutua para evitar problemas de concurrencia! http://mywiki.wooledge.org/BashFAQ/045
+lockdir=/tmp/$(echo ${fichero}|tr -d /)_tmp.lock
+if ! mkdir "$lockdir"; then
+  exit 0
+fi
+
 if [ "$fiperm" != "0" ];then ##Tengo fichero de exclusión de IP
   grep -oP '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' $fichero|grep -v -E "0.0.0.0|127.0.0.1" |grep -v -f $fiperm|sort -u >/tmp/fw$(echo ${fichero}|tr -d /)_ip
 else
@@ -217,7 +223,13 @@ if [ "$fpais" != "0" -a -f $fichero ];then
 	sleep 1
         done
         if [ "$res" != "$pais" ] && [ "$pais" != "test" ]; then
-          iptables -L INPUT -n|grep $linea >/dev/null ||  iptables -w 5 -A INPUT -s $linea -j DROP 2>/dev/null
+        ##Exclusión mutua para evitar xtables lock...la opción -w no funciona del todo bien
+          lockiptabledir=/tmp/iptables.lock
+          while ! mkdir "$lockiptabledir"; do
+           sleep ${RANDOM:0:1}
+          done
+          iptables -L INPUT -n|grep $linea >/dev/null ||  iptables -w 1 -A INPUT -s $linea -j DROP 2>/dev/null
+          rm -rf "$lockiptabledir"
         fi
       fi
     done
@@ -238,4 +250,5 @@ elif [ -f $fichero ]; then ##SIn firewall!! Sólo informativo
     done
 fi
 IFS=$IFS_old
+trap 'rm -rf "$lockdir" && rm -rf "$lockiptabledir"2>/dev/null' 0
 exit
