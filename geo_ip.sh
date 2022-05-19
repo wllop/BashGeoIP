@@ -177,9 +177,11 @@ if [ "$ip" != "0" ]; then ## Nos pasan IP
       exit
     fi
 fi
+trap 'rm -rf "$lockdir" 2>/dev/null&& rm -rf "$lockiptabledir"2>/dev/null' 0
+
 ##Exclusión mutua para evitar problemas de concurrencia! http://mywiki.wooledge.org/BashFAQ/045
 lockdir=/tmp/$(echo ${fichero}|tr -d /)_tmp.lock
-if ! mkdir "$lockdir"; then
+if ! mkdir "$lockdir" 2>/dev/null; then
   exit 0
 fi
 
@@ -250,5 +252,4 @@ elif [ -f $fichero ]; then ##SIn firewall!! Sólo informativo
     done
 fi
 IFS=$IFS_old
-trap 'rm -rf "$lockdir" && rm -rf "$lockiptabledir"2>/dev/null' 0
 exit
