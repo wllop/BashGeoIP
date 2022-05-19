@@ -15,10 +15,15 @@ geo_ip.sh [-i] [-b listado_paises_permitidos] <fichero> [-ip X.X.X.X]
 -i --> Ignoramos la opción de comprobación de IPs privadas.
 -b <países.txt> -->  Añadimos una regla de filtrado IPTABLES a las IPs que NO pertenezcan al listado de países indicado en el fichero <países.txt>.
 -ip <ip> --> Indica el país de la IP pasada como parámetro.
+-ei <fichero> --> Excluimos del filtrado a las IPs que aparecen en el fichero pasado como parámetro. Sólo aplica con la opción -b
+-ed <fichero> --> Excluimos los dominios/FQDN que aparecen en el fichero pasado como parámetro. Sólo aplica con opción -b
 
 # CARACTERÍSTICAS:
 * Filtra las direcciones PRIVADAS o ESPECIALES (Loopback, 0.0.0.0)
 * Evita IP's duplicadas.
+* Permite excluir del geobloqueo tanto IPs (-ei) como Dominios (-ed).
+* No duplica entradas en IPTables.
+
 
 # DEPENDENCIAS
 * BashGeoIP necesita de jq como parser JSON para gestionar el JSON devuelto por http://ip-api.com/.
@@ -30,8 +35,6 @@ geo_ip.sh [-i] [-b listado_paises_permitidos] <fichero> [-ip X.X.X.X]
 * geo_ip.sh --ip 8.8.8.8 --> Mostrará el país de la IP 8.8.8.8
 
 # PRÓXIMAS MEJORAS:
-- Lista blanca de IPs
-- Lista blanca automática de Bots de posicionamiento con opción -s (SEO)
 
 
 Cualquier comentario, error o mejora enviadlo a wllop@esat.es. 

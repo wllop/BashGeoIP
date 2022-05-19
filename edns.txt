@@ -1,0 +1,2 @@
+#Fichero Ejemplo dominios a excluir.
+letsencrypt.org
