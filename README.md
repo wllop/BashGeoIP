@@ -1,14 +1,15 @@
 # BashGeoIP
 
 BashGeoIP permite Geolocalizar las distintas IP's existentes en el fichero pasado como parámetro. 
-Permite además crear reglas en IPTABLES para "banear"  IPs que no pertenezcan a zonas geográficas permitidas.      
+Permite además crear reglas en IPTABLES para "banear"  IPs que no pertenezcan a zonas geográficas permitidas. Además, permite la exclusión tanto de IPs como de dominios para evitar su "restricción" geográfica.
+      
 
 # IMPORTANTE
 - Para el uso de la opción -b es necesario permisos de ROOT.
 - El nombre de los países soportado, se basa en las características del servicio ip-api.com. Aunque no he encontrado en la documentación un listado de países, en un alto porcentaje hace uso del standard ISO3166, por lo que he subido dicho fichero, a modo ejemplo, en el repositorio. Dicho fichero se llama paises.txt.
  
 # USO:
-geo_ip.sh [-i] [-b listado_paises_permitidos] <fichero> [-ip X.X.X.X]
+geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed fichero]  <fichero> 
 
 # OPCIONES:
 -h --> Muestra ayuda del comando.
