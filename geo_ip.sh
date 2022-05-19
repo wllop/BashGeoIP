@@ -177,7 +177,7 @@ if [ "$ip" != "0" ]; then ## Nos pasan IP
       exit
     fi
 fi
-trap 'rm -rf "$lockdir" 2>/dev/null&& rm -rf "$lockiptabledir"2>/dev/null' 0
+trap 'rm -rf "$lockdir" 2>/dev/null;rm -rf "$lockiptabledir" 2>/dev/null;rm -fr /tmp/fw$(echo "${fichero}"|tr -d /)_ip 2 >/dev/null' 0
 
 ##Exclusión mutua para evitar problemas de concurrencia! http://mywiki.wooledge.org/BashFAQ/045
 lockdir=/tmp/$(echo ${fichero}|tr -d /)_tmp.lock
@@ -199,7 +199,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
   iptables -L -n|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u>/tmp/fw$(echo ${fichero}|tr -d /)_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw$(echo ${fichero}|tr -d /)_tmp
   #Excluyo del fichero de IPs las que ya están en IPTables
   grep -v -f /tmp/fw$(echo ${fichero}|tr -d /)_tmp /tmp/fw$(echo ${fichero}|tr -d /)_ip >/tmp/fw$(echo ${fichero}|tr -d /)_ip2 && mv /tmp/fw$(echo ${fichero}|tr -d /)_ip2 /tmp/fw$(echo ${fichero}|tr -d /)_ip || exit
-  #Fichero con IP actualmente "baneadas": /tmp/fw$(echo ${fichero}|tr -d /)_tmp
+  rm -fr /tmp/fw$(echo ${fichero}|tr -d /)_tmp
   if [ $(id -u) -ne 0 ];then
      echo "Debe ser administrador para poder utilizar esta opción."
      exit
