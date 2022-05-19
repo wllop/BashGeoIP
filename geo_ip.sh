@@ -178,20 +178,20 @@ if [ "$ip" != "0" ]; then ## Nos pasan IP
     fi
 fi
 if [ "$fiperm" != "0" ];then ##Tengo fichero de exclusión de IP
-  grep -oP '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' $fichero|grep -v -E "0.0.0.0|127.0.0.1" |grep -v -f $fiperm|sort -u >/tmp/fw${fichero}_ip
+  grep -oP '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' $fichero|grep -v -E "0.0.0.0|127.0.0.1" |grep -v -f $fiperm|sort -u >/tmp/fw$(echo ${fichero}|tr -d /)_ip
 else
-  grep -oP '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' $fichero|grep -v -E "0.0.0.0|127.0.0.1"|sort -u >/tmp/fw${fichero}_ip
+  grep -oP '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' $fichero|grep -v -E "0.0.0.0|127.0.0.1"|sort -u >/tmp/fw$(echo ${fichero}|tr -d /)_ip
 fi
 
-#Obtengo IPS en /tmp/fw${fichero}_ip
+#Obtengo IPS en /tmp/fw$(echo ${fichero}|tr -d /)_ip
 
 #Compruebo si hay que implementar las opciones de firewall!
 if [ "$fpais" != "0" -a -f $fichero ];then
   ##Para evitar repetir el procesamiento de IPs ya existentes en iptables, hago un fichero de exclusión
-  iptables -L -n|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u>/tmp/fw${fichero}_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw${fichero}_tmp
+  iptables -L -n|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u>/tmp/fw$(echo ${fichero}|tr -d /)_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw$(echo ${fichero}|tr -d /)_tmp
   #Excluyo del fichero de IPs las que ya están en IPTables
-  grep -v -f /tmp/fw${fichero}_tmp /tmp/fw${fichero}_ip >/tmp/fw${fichero}_ip2 && mv /tmp/fw${fichero}_ip2 /tmp/fw${fichero}_ip || exit
-  #Fichero con IP actualmente "baneadas": /tmp/fw${fichero}_tmp
+  grep -v -f /tmp/fw$(echo ${fichero}|tr -d /)_tmp /tmp/fw$(echo ${fichero}|tr -d /)_ip >/tmp/fw$(echo ${fichero}|tr -d /)_ip2 && mv /tmp/fw$(echo ${fichero}|tr -d /)_ip2 /tmp/fw$(echo ${fichero}|tr -d /)_ip || exit
+  #Fichero con IP actualmente "baneadas": /tmp/fw$(echo ${fichero}|tr -d /)_tmp
   if [ $(id -u) -ne 0 ];then
      echo "Debe ser administrador para poder utilizar esta opción."
      exit
@@ -200,7 +200,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
   IFS_old=$IFS
   IFS=$'\n'
   for pais in $(grep -v "#"  $fpais|tr -d \"|tr [:upper:] [:lower:]); do
-    for linea in $(cat /tmp/fw${fichero}_ip|tr -d " "); do
+    for linea in $(cat /tmp/fw$(echo ${fichero}|tr -d /)_ip|tr -d " "); do
       #Comprobamos si la IP debe ser IGNORADA
 	resp=$(excluir_ip $linea)
 	if [ "$resp" != "1" ];then # Si devuelve 0 pasamos a otra IP
@@ -223,7 +223,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
     done
   done
 elif [ -f $fichero ]; then ##SIn firewall!! Sólo informativo
-    for linea in $(cat /tmp/fw${fichero}_ip); do
+    for linea in $(cat /tmp/fw$(echo ${fichero}|tr -d /)_ip); do
       if [ "$ignora_privadas" == "0" ]; then
        resp=$(privada $linea)
       fi
