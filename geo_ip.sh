@@ -226,7 +226,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
         if [ "$res" != "$pais" ] && [ "$pais" != "test" ]; then
         ##Exclusión mutua para evitar xtables lock...la opción -w no funciona del todo bien
           lockiptabledir=/tmp/iptables.lock
-          while ! mkdir "$lockiptabledir"; do
+          while ! mkdir "$lockiptabledir" 2>/dev/null; do
            sleep ${RANDOM:0:1}
           done
           iptables -L INPUT -n|grep $linea >/dev/null ||  iptables -w 1 -A INPUT -s $linea -j DROP 2>/dev/null
