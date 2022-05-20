@@ -31,6 +31,10 @@ for param in $*;do
          fi
          continue
   ;;
+    "-cache") cache=1
+         fcache=1
+         continue
+  ;;
   *) #Fichero
      if [ -f $param ];then #Es un fichero
        if [ "$fpais" == "1" ]; then
@@ -39,6 +43,8 @@ for param in $*;do
           fiperm=$param
        elif [ "$fdperm" == "1" ]; then
           fdperm=$param
+       elif [ "$fcache" == "1" ]; then
+          fcache=$param
        else
           fichero=$param
        fi
@@ -57,7 +63,7 @@ for param in $*;do
 done
 }
 
-function excluir_ip { #Recibe una IP y comprueba si debe ser EXCLUIDA del análisis en función de su DNS Inverso
+function excluir_ip { #Recibe una IP y el pais y comprueba si debe ser EXCLUIDA del análisis en función de su DNS Inverso
 #Variables
 #fdperm -->Fichero con dominios a excluir
 if [ "$fdperm" != "0" ];then ##Tengo fichero de exclusión de dominios
@@ -70,6 +76,9 @@ if [ "$fdperm" != "0" ];then ##Tengo fichero de exclusión de dominios
       fi
     done
   fi
+fi
+if [ "$cache" == "1" ];then ###$1 es la IP y $2 es el pais que estoy comprobando! 
+  res=$(grep $2 $fcache|cut -d: -f1)
 fi
 echo 1
 }
@@ -124,7 +133,20 @@ IFS=$IFS_TMP
 }
 
 function geoip { ##Dada una ip indica su país de origen
- res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
+ if [ "$cache" == "1" ]; then
+   $res=$(grep -w "$1" $fcache|cut -d: -f2|tr [:upper:] [:lower:])
+   if [ "$res" != "" ];then
+      echo $res
+   else
+      res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
+      echo "$1:$res">>$fcache
+      echo $res
+   fi
+ else
+    res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
+    if [ "$cache" == "1" ]; then
+      echo "$1:$res">>$fcache  
+    fi
  echo $res
 }
 function help  {
@@ -140,7 +162,7 @@ function help  {
  echo "[OPCIONAL] Con la opción -ip --> Mostramos el país de la IP pasada como parámetro. Debe usarse como parámtro único."
  echo "[OPCIONAL] Con la opción -ei <fichero> --> Excluimos del filtrado a las IPs que aparecen en el fichero pasado como parámetro. Sólo aplica con opción -b"
  echo "[OPCIONAL] Con la opción -ed <fichero> --> Excluimos los dominios/FQDN que aparecen en el fichero pasado como parámetro. Sólo aplica con opción -b"
- echo ""
+ echo "[OPCIONAL] Con la opcion -cache <fichero> --> Cachearemos las consultas de IP - País para reducir peticiones a IP-API"
  echo "Ejemplo:"
  echo "--------"
  echo "geo_ip /var/log/auth.log"
@@ -162,6 +184,8 @@ fpais=0 #Fichero de paises permitidos
 fiperm=0 #Fichero de IPs permitidas
 fdperm=0 #Fichero de Dominios/FQDN permitidos
 ip=0 #Dirección IP a geolocalizar.
+cache=0 #Para saber si cacheamos resultados
+fcache=0 #Fichero caché
 excludedom=0 #Flag parámetro -ed. 
 excludeip=0 #Flag parámetro -ei.
 firewall=0 #Flag parámetro Firewall.
@@ -209,7 +233,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
   for pais in $(grep -v "#"  $fpais|tr -d \"|tr [:upper:] [:lower:]); do
     for linea in $(cat /tmp/fw$(echo ${fichero}|tr -d /)_ip|tr -d " "); do
       #Comprobamos si la IP debe ser IGNORADA
-	resp=$(excluir_ip $linea)
+	resp=$(excluir_ip $linea $pais)
 	if [ "$resp" != "1" ];then # Si devuelve 0 pasamos a otra IP
         continue
       fi
@@ -242,10 +266,13 @@ elif [ -f $fichero ]; then ##SIn firewall!! Sólo informativo
       fi
       if [ "$resp" != "1" ]; then
         while [ "$res" == "" ];do
-          res=$(curl -sf "http://ip-api.com/json/$linea"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
+          res=$(geoip $linea)
           sleep 1
         done
       echo "IP:$linea - Country:$res"
+      if [ -f $fcache ]; then #Cacheamos resultado para más tarde.
+        echo "$linea:$res">>$fcache
+      fi
       res=""
       fi
     done
