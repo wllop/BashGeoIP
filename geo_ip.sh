@@ -147,7 +147,8 @@ function geoip { ##Dada una ip indica su país de origen
     if [ "$cache" == "1" ]; then
       echo "$1:$res">>$fcache  
     fi
- echo $res
+    echo $res
+ fi
 }
 function help  {
  echo "$1"
