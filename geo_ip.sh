@@ -130,7 +130,7 @@ IFS=$IFS_TMP
 }
 
 function geoip { ##Dada una ip indica su país de origen
-   $res=$(grep -w "$1" $fcache|cut -d: -f2|tr [:upper:] [:lower:])
+   res=$(grep -w "$1" $fcache|cut -d: -f2|tr [:upper:] [:lower:])
    if [ "$res" != "" ];then
       echo $res
    else
@@ -188,7 +188,7 @@ fi
 
 if [ ! -f $fcache ];then #Si el fichero caché no EXISTE lo creamos
  touch $fcache
-  fi
+fi
 
 
 if [ "$ip" != "0" ]; then ## Nos pasan IP
