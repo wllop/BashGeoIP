@@ -77,9 +77,6 @@ if [ "$fdperm" != "0" ];then ##Tengo fichero de exclusión de dominios
     done
   fi
 fi
-if [ "$cache" == "1" ];then ###$1 es la IP y $2 es el pais que estoy comprobando! 
-  res=$(grep $2 $fcache|cut -d: -f1)
-fi
 echo 1
 }
 function check_ip { #Devuelve 0 si la IP es válida y 1 si NO es válida
@@ -202,6 +199,7 @@ if [ "$ip" != "0" ]; then ## Nos pasan IP
       exit
     fi
 fi
+
 ##Exclusión mutua para evitar problemas de concurrencia! http://mywiki.wooledge.org/BashFAQ/045
 lockdir=/tmp/$(echo ${fichero}|tr -d /)_tmp.lock
 if ! mkdir "$lockdir" 2>/dev/null; then
