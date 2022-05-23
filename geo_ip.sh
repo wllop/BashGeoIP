@@ -130,7 +130,6 @@ IFS=$IFS_TMP
 }
 
 function geoip { ##Dada una ip indica su país de origen
- if [ "$cache" == "1" ]; then
    $res=$(grep -w "$1" $fcache|cut -d: -f2|tr [:upper:] [:lower:])
    if [ "$res" != "" ];then
       echo $res
@@ -138,14 +137,7 @@ function geoip { ##Dada una ip indica su país de origen
       res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
       echo "$1:$res">>$fcache
       echo $res
-   fi
- else
-    res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
-    if [ "$cache" == "1" ]; then
-      echo "$1:$res">>$fcache  
     fi
-    echo $res
- fi
 }
 function help  {
  echo "$1"
@@ -190,6 +182,14 @@ firewall=0 #Flag parámetro Firewall.
 ignora_privadas=0 #Flag parámetro -i.
 fichero=0 #Fichero donde buscar IPs a geolocalizar.
 check_param $*
+if [ "$fcache" == "0" ]; then
+  fcache="cache.txt"
+fi
+
+if [ ! -f $fcache ];then #Si el fichero caché no EXISTE lo creamos
+ touch $fcache
+  fi
+
 
 if [ "$ip" != "0" ]; then ## Nos pasan IP
     resp=$(privada $ip)
@@ -219,7 +219,6 @@ fi
 if [ "$fpais" != "0" -a -f $fichero ];then
   ##Para evitar repetir el procesamiento de IPs ya existentes en iptables, hago un fichero de exclusión
   iptables -L -n|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u>/tmp/fw$(echo ${fichero}|tr -d /)_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw$(echo ${fichero}|tr -d /)_tmp
-  #Excluyo del fichero de IPs las que ya están en IPTables
   grep -v -f /tmp/fw$(echo ${fichero}|tr -d /)_tmp /tmp/fw$(echo ${fichero}|tr -d /)_ip >/tmp/fw$(echo ${fichero}|tr -d /)_ip2 && mv /tmp/fw$(echo ${fichero}|tr -d /)_ip2 /tmp/fw$(echo ${fichero}|tr -d /)_ip || exit
   rm -fr /tmp/fw$(echo ${fichero}|tr -d /)_tmp
   if [ $(id -u) -ne 0 ];then
@@ -232,8 +231,8 @@ if [ "$fpais" != "0" -a -f $fichero ];then
   for pais in $(grep -v "#"  $fpais|tr -d \"|tr [:upper:] [:lower:]); do
     for linea in $(cat /tmp/fw$(echo ${fichero}|tr -d /)_ip|tr -d " "); do
       #Comprobamos si la IP debe ser IGNORADA
-	resp=$(excluir_ip $linea $pais)
-	if [ "$resp" != "1" ];then # Si devuelve 0 pasamos a otra IP
+	    resp=$(excluir_ip $linea $pais)
+	    if [ "$resp" != "1" ];then # Si devuelve 0 pasamos a otra IP
         continue
       fi
       resp=""
@@ -243,8 +242,8 @@ if [ "$fpais" != "0" -a -f $fichero ];then
       fi
       if [ "$resp" != "1" ]; then
         while [ "$res" == "" ];do
-	res=$(geoip $linea)
-	sleep 1
+	        res=$(geoip $linea)
+	        sleep 1
         done
         if [ "$res" != "$pais" ] && [ "$pais" != "test" ]; then
         ##Exclusión mutua para evitar xtables lock...la opción -w no funciona del todo bien
