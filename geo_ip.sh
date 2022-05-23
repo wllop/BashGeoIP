@@ -196,6 +196,9 @@ if [ "$ip" != "0" ]; then ## Nos pasan IP
     if [ "$resp" != "1" ];then #OK
       resp=$(geoip $ip)
       echo "País: $resp"
+      if [ -f $fcache ]; then #Cacheamos resultado para más tarde.
+       echo "$ip:$resp">>$fcache
+      fi
       exit
     fi
 fi
