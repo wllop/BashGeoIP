@@ -2,6 +2,7 @@
 
 BashGeoIP permite Geolocalizar las distintas IP's existentes en el fichero pasado como parámetro. 
 Permite además crear reglas en IPTABLES para "banear"  IPs que no pertenezcan a zonas geográficas permitidas. Además, permite la exclusión tanto de IPs como de dominios para evitar su "restricción" geográfica.
+Además, cacheará las ubicaciones de las IPs buscadas para aumentar rendimiento y reducir peticiones al servicio ip-api.
       
 
 # IMPORTANTE
@@ -9,7 +10,7 @@ Permite además crear reglas en IPTABLES para "banear"  IPs que no pertenezcan a
 - El nombre de los países soportado, se basa en las características del servicio ip-api.com. Aunque no he encontrado en la documentación un listado de países, en un alto porcentaje hace uso del standard ISO3166, por lo que he subido dicho fichero, a modo ejemplo, en el repositorio. Dicho fichero se llama paises.txt.
  
 # USO:
-geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed fichero]  <fichero> 
+geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed fichero] [-cache <fichero>] <fichero> 
 
 # OPCIONES:
 -h --> Muestra ayuda del comando.
@@ -18,12 +19,15 @@ geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed f
 -ip <ip> --> Indica el país de la IP pasada como parámetro.
 -ei <fichero> --> Excluimos del filtrado a las IPs que aparecen en el fichero pasado como parámetro. Sólo aplica con la opción -b
 -ed <fichero> --> Excluimos los dominios/FQDN que aparecen en el fichero pasado como parámetro. Sólo aplica con opción -b
+-cache <fichero> --> Podemos indicar en qué fichero se almacenarán la relación IP:País. En el caso de no indicar la opción -cache, se creará automáticamente un fichero llamado "cache.txt" en el mismo directorio donde está ubicado geo_ip.sh.
+
 
 # CARACTERÍSTICAS:
 * Filtra las direcciones PRIVADAS o ESPECIALES (Loopback, 0.0.0.0)
 * Evita IP's duplicadas.
 * Permite excluir del geobloqueo tanto IPs (-ei) como Dominios (-ed).
 * No duplica entradas en IPTables.
+* Uso de cache para almacenar la relación IP:País
 
 
 # DEPENDENCIAS
