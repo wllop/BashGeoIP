@@ -48,7 +48,10 @@ for param in $*;do
        else
           fichero=$param
        fi
-     elif [ "$ip" == "1" ]; then
+    elif [ "$fcache" == "1" -a ! -f $param ]; then
+          touch $param
+          fcache=$param
+    elif [ "$ip" == "1" ]; then
           res=$(check_ip "$param")
           if [ $res -eq 0 ];then 
            ip=$param;
@@ -135,8 +138,13 @@ function geoip { ##Dada una ip indica su país de origen
       echo $res
    else
       res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
-      echo "$1:$res">>$fcache
-      echo $res
+      lockcachefile=/tmp/cache$(echo $fcache|tr -d /).lock
+      while ! mkdir "$lockcachefile" 2>/dev/null; do
+           sleep ${RANDOM:0:1}
+          done
+          echo "$1:$res">>$fcache
+          echo $res
+          rm -rf "$lockcachefile"
     fi
 }
 function help  {
@@ -184,10 +192,6 @@ fichero=0 #Fichero donde buscar IPs a geolocalizar.
 check_param $*
 if [ "$fcache" == "0" ]; then
   fcache="cache.txt"
-fi
-
-if [ ! -f $fcache ];then #Si el fichero caché no EXISTE lo creamos
- touch $fcache
 fi
 
 
@@ -269,7 +273,12 @@ elif [ -f $fichero ]; then ##SIn firewall!! Sólo informativo
         done
       echo "IP:$linea - Country:$res"
       if [ -f $fcache ]; then #Cacheamos resultado para más tarde.
-        echo "$linea:$res">>$fcache
+       lockcachefile=/tmp/cache$(echo $fcache|tr -d /).lock
+         while ! mkdir "$lockcachefile" 2>/dev/null; do
+           sleep ${RANDOM:0:1}
+          done
+          echo "$linea:$res">>$fcache
+          rm -rf "$lockcachefile"
       fi
       res=""
       fi
