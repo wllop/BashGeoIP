@@ -1,4 +1,4 @@
-# BashGeoIP
+# BashGeoIP 
 
 BashGeoIP permite Geolocalizar las distintas IP's existentes en el fichero pasado como parámetro. 
 Permite además crear reglas en IPTABLES para "banear"  IPs que no pertenezcan a zonas geográficas permitidas. Además, permite la exclusión tanto de IPs como de dominios para evitar su "restricción" geográfica.
