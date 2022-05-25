@@ -133,17 +133,17 @@ IFS=$IFS_TMP
 }
 
 function geoip { ##Dada una ip indica su país de origen
-   res=$(grep -w "$1" $fcache|cut -d: -f2|tr [:upper:] [:lower:])
-   if [ "$res" != "" ];then
-      echo $res
+   resip=$(grep -w "$1" $fcache|cut -d: -f2|head -1|tr [:upper:] [:lower:])
+   if [ "$resip" != "" ];then
+      echo $resip
    else
-      res=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
+      resip=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
       lockcachefile=/tmp/cache$(echo $fcache|tr -d /).lock
       while ! mkdir "$lockcachefile" 2>/dev/null; do
            sleep ${RANDOM:0:1}
           done
-          echo "$1:$res">>$fcache
-          echo $res
+          echo "$1:$resip">>$fcache
+          echo $resip
           rm -rf "$lockcachefile"
     fi
 }
