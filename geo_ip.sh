@@ -189,10 +189,12 @@ excludeip=0 #Flag parámetro -ei.
 firewall=0 #Flag parámetro Firewall.
 ignora_privadas=0 #Flag parámetro -i.
 fichero=0 #Fichero donde buscar IPs a geolocalizar.
+numero='^[0-9]+$'
 check_param $*
 if [ "$fcache" == "0" ]; then
   fcache="cache.txt"
 fi
+
 
 
 if [ "$ip" != "0" ]; then ## Nos pasan IP
@@ -249,7 +251,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
 	        res=$(geoip $linea)
 	        sleep 1
         done
-        if [ "$res" != "$pais" ] && [ "$pais" != "test" ]; then
+        if [ "$res" != "$pais" ] && ! [[ $res =~ $numero ]]; then
         ##Exclusión mutua para evitar xtables lock...la opción -w no funciona del todo bien
           lockiptabledir=/tmp/iptables.lock
           while ! mkdir "$lockiptabledir" 2>/dev/null; do
