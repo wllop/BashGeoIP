@@ -10,7 +10,7 @@ Además, cacheará las ubicaciones de las IPs buscadas para aumentar rendimiento
 - El nombre de los países soportado, se basa en las características del servicio ip-api.com. Aunque no he encontrado en la documentación un listado de países, en un alto porcentaje hace uso del standard ISO3166, por lo que he subido dicho fichero, a modo ejemplo, en el repositorio. Dicho fichero se llama paises.txt.
  
 # USO:
-geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed fichero] [-cache <fichero>] <fichero> 
+geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed fichero] [-cache <fichero>]  <fichero> 
 
 # OPCIONES:
 -h --> Muestra ayuda del comando.
