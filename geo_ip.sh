@@ -225,7 +225,12 @@ fi
 #Compruebo si hay que implementar las opciones de firewall!
 if [ "$fpais" != "0" -a -f $fichero ];then
   ##Para evitar repetir el procesamiento de IPs ya existentes en iptables, hago un fichero de exclusión
-  iptables -L -n|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u>/tmp/fw$(echo ${fichero}|tr -d /)_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw$(echo ${fichero}|tr -d /)_tmp
+  lockiptabledir=/tmp/iptables.lock
+  while ! mkdir "$lockiptabledir" 2>/dev/null; do
+  sleep ${RANDOM:0:1}
+  done   
+  iptables -L -n -w 30|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u>/tmp/fw$(echo ${fichero}|tr -d /)_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw$(echo ${fichero}|tr -d /)_tmp
+  rm -rf "$lockiptabledir"
   grep -v -f /tmp/fw$(echo ${fichero}|tr -d /)_tmp /tmp/fw$(echo ${fichero}|tr -d /)_ip >/tmp/fw$(echo ${fichero}|tr -d /)_ip2 && mv /tmp/fw$(echo ${fichero}|tr -d /)_ip2 /tmp/fw$(echo ${fichero}|tr -d /)_ip || exit
   rm -fr /tmp/fw$(echo ${fichero}|tr -d /)_tmp
   if [ $(id -u) -ne 0 ];then
@@ -258,7 +263,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
           while ! mkdir "$lockiptabledir" 2>/dev/null; do
            sleep ${RANDOM:0:1}
           done
-          iptables -L INPUT -n|grep $linea >/dev/null ||  iptables -w 1 -A INPUT -s $linea -j DROP 2>/dev/null
+          iptables -L INPUT -n -w 30|grep $linea >/dev/null ||  iptables -w 30 -A INPUT -s $linea -j DROP 2>/dev/null
           rm -rf "$lockiptabledir"
         fi
       fi
