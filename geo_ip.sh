@@ -192,6 +192,7 @@ fichero=0 #Fichero donde buscar IPs a geolocalizar.
 numero='^[0-9]+$'
 check_param $*
 if [ "$fcache" == "0" ]; then
+  touch cache.txt
   fcache="cache.txt"
 fi
 
