@@ -137,7 +137,9 @@ function geoip { ##Dada una ip indica su país de origen
    if [ "$resip" != "" ];then
       echo $resip
    else
+      while [ "$resip" == "" ];do
       resip=$(curl -sf "http://ip-api.com/json/$1"|jq '.country'|tr -d "\""|tr [:upper:] [:lower:])
+      done
       lockcachefile=/tmp/cache$(echo $fcache|tr -d /).lock
       while ! mkdir "$lockcachefile" 2>/dev/null; do
            sleep ${RANDOM:0:1}
@@ -229,7 +231,7 @@ if [ "$fpais" != "0" -a -f $fichero ];then
   while ! mkdir "$lockiptabledir" 2>/dev/null; do
   sleep ${RANDOM:0:1}
   done   
-  iptables -L -n -w 30|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u>/tmp/fw$(echo ${fichero}|tr -d /)_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw$(echo ${fichero}|tr -d /)_tmp
+  iptables -L -n -w 30|grep  -oP "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"| grep -v -E "0.0.0.0|127.0.0.1" |sort -u >/tmp/fw$(echo ${fichero}|tr -d /)_tmp #Obtenemos IPs y volcamos a fichero /tmp/fw$(echo ${fichero}|tr -d /)_tmp
   rm -rf "$lockiptabledir"
   grep -v -f /tmp/fw$(echo ${fichero}|tr -d /)_tmp /tmp/fw$(echo ${fichero}|tr -d /)_ip >/tmp/fw$(echo ${fichero}|tr -d /)_ip2 && mv /tmp/fw$(echo ${fichero}|tr -d /)_ip2 /tmp/fw$(echo ${fichero}|tr -d /)_ip || exit
   rm -fr /tmp/fw$(echo ${fichero}|tr -d /)_tmp
