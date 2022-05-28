@@ -1,4 +1,4 @@
-# BashGeoIP 
+# BashGeoIP      
 
 BashGeoIP permite Geolocalizar las distintas IP's existentes en el fichero pasado como parámetro. 
 Permite además crear reglas en IPTABLES para "banear"  IPs que no pertenezcan a zonas geográficas permitidas. Además, permite la exclusión tanto de IPs como de dominios para evitar su "restricción" geográfica.
@@ -10,7 +10,7 @@ Además, cacheará las ubicaciones de las IPs buscadas para aumentar rendimiento
 - El nombre de los países soportado, se basa en las características del servicio ip-api.com. Aunque no he encontrado en la documentación un listado de países, en un alto porcentaje hace uso del standard ISO3166, por lo que he subido dicho fichero, a modo ejemplo, en el repositorio. Dicho fichero se llama paises.txt.
  
 # USO:
-geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed fichero] [-cache <fichero>]  <fichero> 
+geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed fichero] [-cache <fichero>] <fichero> 
 
 # OPCIONES:
 -h --> Muestra ayuda del comando.
@@ -27,7 +27,7 @@ geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed f
 * Evita IP's duplicadas.
 * Permite excluir del geobloqueo tanto IPs (-ei) como Dominios (-ed).
 * No duplica entradas en IPTables.
-* Uso de cache para almacenar la relación IP:País
+* Uso de cache para almacenar la relación IP:País. Así reducimos las peticiones al servidor ip-api.com, puesto que iremos guardando en este fichero las distintas consultas realizadas.
 
 
 # DEPENDENCIAS
@@ -38,9 +38,12 @@ geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed f
 * geo_ip.sh ip.txt  --> Muestra una relación entre las direcciones IP existentes en el fichero "ip.txt" y el país al que pertenecen.
 * geo_ip.sh -i -b paises.txt ip.txt -> Crea reglas de filtrado IPTABLES,  para impedir el acceso a las IPs existentes en el fichero 'ip.txt', que NO pertenezcan a los paises indicados en el archivo 'paises.txt'. Además, con la opción -i, hacemos que omita las IP's privadas.
 * geo_ip.sh --ip 8.8.8.8 --> Mostrará el país de la IP 8.8.8.8
+* geo_ip.sh -b pais.txt -ed edns.txt -ei eip.txt -cache /esat/cache.txt nginx.log --> Bloqueará todas las IPs existentes en el fichero nginx.log que no sean de "España" y que no estén en el fichero de IPs excluidas (eip.txt) ni asociadas a los dominios existentes en edns.txt. Además, para la geolocalización hará uso del fichero /esat/cache.txt, guardando ahí cualquier geolocalización de una IP no existente previamente.
 
 # PRÓXIMAS MEJORAS:
-
+* Permitir añadir script a /etc/crontab para la automatización de tareas.
+* Detectar posibles servicios en el host para autodetectar qué ficheros de registros monitorizar.
+* Añadir la exclusión de IP'S basada en comportamientos (User-Agent, Method, Strings,...)
 
 Cualquier comentario, error o mejora enviadlo a wllop@esat.es. 
 Muchas gracias!!
