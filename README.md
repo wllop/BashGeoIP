@@ -14,13 +14,19 @@ geo_ip.sh [-i] [-b listado_paises_permitidos] [-ip X.X.X.X] [-ei fichero] [-ed f
 
 # OPCIONES:
 -h --> Muestra ayuda del comando.
+
 -i --> Ignoramos la opción de comprobación de IPs privadas.
+
 -b <países.txt> -->  Añadimos una regla de filtrado IPTABLES a las IPs que NO pertenezcan al listado de países indicado en el fichero <países.txt>.
 -ip <ip> --> Indica el país de la IP pasada como parámetro.
--ei <fichero> --> Excluimos del filtrado a las IPs que aparecen en el fichero pasado como parámetro. Sólo aplica con la opción -b
--ed <fichero> --> Excluimos los dominios/FQDN que aparecen en el fichero pasado como parámetro. Sólo aplica con opción -b
+      
+-ei <fichero> --> Excluimos del filtrado a las IPs que aparecen en el fichero pasado como parámetro. Sólo aplica con la opción -b.
+      
+-ed <fichero> --> Excluimos los dominios/FQDN que aparecen en el fichero pasado como parámetro. Sólo aplica con opción -b.
+      
 -cache <fichero> --> Podemos indicar en qué fichero se almacenarán la relación IP:País. En el caso de no indicar la opción -cache, se creará automáticamente un fichero llamado "cache.txt" en el mismo directorio donde está ubicado geo_ip.sh.
 
+      
 
 # CARACTERÍSTICAS:
 * Filtra las direcciones PRIVADAS o ESPECIALES (Loopback, 0.0.0.0)
